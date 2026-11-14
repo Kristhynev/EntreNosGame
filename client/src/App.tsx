@@ -330,6 +330,11 @@ export function ImpostorPartyApp({
 
       socket.on("chat_message", (payload: { room: RoomState }) => {
         setRoom(payload.room);
+        const messages = payload.room.gameData.chatMessages;
+        const latestMessage = messages[messages.length - 1];
+        if (latestMessage && latestMessage.playerId !== currentPlayerId) {
+          playSound("message");
+        }
       });
 
       socket.on("voting_started", (payload: { room: RoomState }) => {

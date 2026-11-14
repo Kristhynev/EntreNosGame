@@ -6,6 +6,7 @@ export type SoundCue =
   | "player-leaves"
   | "investigation-start"
   | "clue"
+  | "message"
   | "debate"
   | "voting"
   | "vote-result"
@@ -127,6 +128,14 @@ export class GameAudio {
         { frequency: 392, duration: 0.2, volume: 0.05, delay: 0.24 },
       ],
       clue: [{ frequency: 739.99, duration: 0.07, volume: 0.035 }],
+      message: [
+        {
+          frequency: 523.25,
+          duration: 0.06,
+          volume: 0.03,
+          waveform: "triangle",
+        },
+      ],
       debate: [
         {
           frequency: 220,

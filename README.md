@@ -19,7 +19,9 @@ Mesa de investigação em estilo **noir neo-brutalista**, inspirada em detetives
 
 Tipografia: **Bebas Neue** (títulos de pôster) + **Inter** (corpo). O fundo tem holofotes animados, grão de filme, cartas flutuantes e uma lupa — tudo desativado automaticamente em `prefers-reduced-motion`.
 
-O áudio procedural cria uma ambiência noir discreta e sinais para abertura de caso, entrada de jogadores, pistas, debate, votação e resultado. O controle **Som** começa desligado e ativa trilha e efeitos após interação do jogador; os sons são sintetizados no navegador, sem arquivos externos.
+O áudio procedural cria uma ambiência noir discreta, sons para eventos da partida e efeitos distintos ao clicar nos botões (seleção, abas, confirmação, envio, voto, cópia, aleatório, configurações e navegação). O controle **Som** começa desligado e ativa trilha e efeitos após interação do jogador; os sons são sintetizados no navegador, sem arquivos externos.
+
+O anfitrião pode escolher entre 31 categorias de palavras, além de **Aleatório**. O catálogo inclui temas como profissões, esportes, tecnologia, natureza, instrumentos, países, artes e insetos.
 
 ---
 
@@ -31,7 +33,7 @@ O áudio procedural cria uma ambiência noir discreta e sinais para abertura de 
 │   ├── index.js                    # Servidor Express + Socket.IO standalone (porta 3001)
 │   ├── gameManager.js              # Salas, turnos, dicas, votação, chute de 20s e reconexão (60s)
 │   ├── avatarSchema.js             # Whitelist AVATAR_SCHEMA + isValidAvatar + assinatura visual
-│   └── words.js                    # Banco de palavras PT-BR (Comida, Lugares, Animais, Filmes, Aleatório)
+│   └── words.js                    # Banco de palavras PT-BR (31 categorias + Aleatório)
 │
 ├── client/                         # Frontend React + Vite + Tailwind CSS
 │   ├── package.json

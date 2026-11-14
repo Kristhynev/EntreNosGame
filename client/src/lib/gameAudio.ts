@@ -1,5 +1,6 @@
 export type SoundCue =
   | "toggle"
+  | "toggle-off"
   | "case-open"
   | "reconnect"
   | "player-arrives"
@@ -13,7 +14,20 @@ export type SoundCue =
   | "guess"
   | "victory"
   | "defeat"
-  | "error";
+  | "error"
+  | "ui-click"
+  | "ui-select"
+  | "ui-tab"
+  | "ui-toggle"
+  | "ui-confirm"
+  | "ui-close"
+  | "ui-copy"
+  | "ui-randomize"
+  | "ui-send"
+  | "ui-vote"
+  | "ui-settings"
+  | "ui-reveal"
+  | "ui-chat";
 
 interface Tone {
   frequency: number;
@@ -88,6 +102,15 @@ export class GameAudio {
       toggle: [
         { frequency: 659.25, duration: 0.11, volume: 0.08 },
         { frequency: 880, duration: 0.18, volume: 0.07, delay: 0.1 },
+      ],
+      "toggle-off": [
+        {
+          frequency: 659.25,
+          endFrequency: 440,
+          duration: 0.12,
+          volume: 0.06,
+          waveform: "triangle",
+        },
       ],
       "case-open": [
         {
@@ -192,6 +215,82 @@ export class GameAudio {
           volume: 0.07,
           waveform: "square",
         },
+      ],
+      "ui-click": [
+        {
+          frequency: 420,
+          endFrequency: 340,
+          duration: 0.045,
+          volume: 0.025,
+          waveform: "triangle",
+        },
+      ],
+      "ui-select": [
+        { frequency: 493.88, duration: 0.055, volume: 0.035 },
+        { frequency: 587.33, duration: 0.07, volume: 0.03, delay: 0.045 },
+      ],
+      "ui-tab": [
+        { frequency: 659.25, duration: 0.055, volume: 0.035 },
+      ],
+      "ui-toggle": [
+        { frequency: 440, duration: 0.07, volume: 0.035 },
+        { frequency: 554.37, duration: 0.08, volume: 0.03, delay: 0.055 },
+      ],
+      "ui-confirm": [
+        { frequency: 523.25, duration: 0.08, volume: 0.045 },
+        { frequency: 783.99, duration: 0.12, volume: 0.04, delay: 0.07 },
+      ],
+      "ui-close": [
+        {
+          frequency: 523.25,
+          endFrequency: 349.23,
+          duration: 0.1,
+          volume: 0.04,
+          waveform: "triangle",
+        },
+      ],
+      "ui-copy": [
+        { frequency: 880, duration: 0.045, volume: 0.035 },
+        { frequency: 1046.5, duration: 0.065, volume: 0.03, delay: 0.055 },
+      ],
+      "ui-randomize": [
+        { frequency: 392, duration: 0.055, volume: 0.035 },
+        { frequency: 523.25, duration: 0.055, volume: 0.035, delay: 0.05 },
+        { frequency: 659.25, duration: 0.055, volume: 0.035, delay: 0.1 },
+        { frequency: 783.99, duration: 0.09, volume: 0.03, delay: 0.15 },
+      ],
+      "ui-send": [
+        { frequency: 587.33, duration: 0.05, volume: 0.035 },
+        { frequency: 739.99, duration: 0.08, volume: 0.03, delay: 0.05 },
+      ],
+      "ui-vote": [
+        { frequency: 392, duration: 0.07, volume: 0.04 },
+        {
+          frequency: 293.66,
+          endFrequency: 220,
+          duration: 0.1,
+          volume: 0.035,
+          delay: 0.06,
+          waveform: "triangle",
+        },
+      ],
+      "ui-settings": [
+        { frequency: 349.23, duration: 0.06, volume: 0.035 },
+        { frequency: 440, duration: 0.06, volume: 0.035, delay: 0.055 },
+        { frequency: 523.25, duration: 0.09, volume: 0.03, delay: 0.11 },
+      ],
+      "ui-reveal": [
+        {
+          frequency: 392,
+          endFrequency: 659.25,
+          duration: 0.11,
+          volume: 0.035,
+          waveform: "triangle",
+        },
+      ],
+      "ui-chat": [
+        { frequency: 440, duration: 0.045, volume: 0.03 },
+        { frequency: 523.25, duration: 0.055, volume: 0.025, delay: 0.04 },
       ],
     };
 

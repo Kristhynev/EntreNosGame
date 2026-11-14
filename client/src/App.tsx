@@ -37,6 +37,38 @@ export interface ImpostorPartyAppProps {
   standaloneUrl?: string;
 }
 
+function getButtonSoundCue(button: HTMLButtonElement): SoundCue {
+  const label = [
+    button.getAttribute("aria-label"),
+    button.title,
+    button.textContent,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLocaleLowerCase("pt-BR");
+
+  if (button.getAttribute("role") === "tab") return "ui-tab";
+  if (/copiar|copiado/.test(label)) return "ui-copy";
+  if (/sortear|aleat[oó]rio|gerar outro/.test(label)) return "ui-randomize";
+  if (/votar|voto|vota[cç][aã]o/.test(label)) return "ui-vote";
+  if (/enviar|mensagem|dica/.test(label)) return "ui-send";
+  if (/ocultar|mostrar|espiar|papel secreto/.test(label)) return "ui-reveal";
+  if (/configura[cç][oõ]es|regras/.test(label)) return "ui-settings";
+  if (/sair|abandonar|fechar|voltar/.test(label)) return "ui-close";
+  if (/ativar|desativar|recolher|expandir|\bon\b|\boff\b/.test(label)) {
+    return "ui-toggle";
+  }
+  if (button.closest('[aria-label="Chat de debate da rodada"]')) {
+    return "ui-chat";
+  }
+  if (/chat|debate/.test(label)) return "ui-chat";
+  if (/abrir|entrar|iniciar|pronto|confirmar|salvar|selar|jogar novamente|conectar/.test(label)) {
+    return "ui-confirm";
+  }
+  if (button.hasAttribute("aria-pressed")) return "ui-select";
+  return "ui-click";
+}
+
 export function ImpostorPartyApp({
   socketMode = "integrated",
   standaloneUrl = "http://localhost:3001",
@@ -87,11 +119,28 @@ export function ImpostorPartyApp({
     audioRef.current?.play(cue);
   }, []);
 
+  const handleButtonClickCapture = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest("button");
+      if (
+        !(button instanceof HTMLButtonElement) ||
+        button.disabled ||
+        button.hasAttribute("data-sound-ignore")
+      ) {
+        return;
+      }
+      playSound(getButtonSoundCue(button));
+    },
+    [playSound]
+  );
+
   const handleToggleSound = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (soundEnabled) {
+      playSound("toggle-off");
       audio.disable();
       setSoundEnabled(false);
       return;
@@ -107,7 +156,7 @@ export function ImpostorPartyApp({
         console.error("Não foi possível ativar o áudio do jogo.", error);
         pushToast("info", "Não foi possível ativar o som neste navegador.");
       });
-  }, [pushToast, soundEnabled]);
+  }, [playSound, pushToast, soundEnabled]);
 
   const triggerConfetti = useCallback(() => {
     setBurstCounter((c) => c + 1);
@@ -530,12 +579,16 @@ export function ImpostorPartyApp({
   };
 
   return (
-    <div className="relative min-h-dvh bg-[#0E1230] text-white font-body overflow-x-hidden selection:bg-[#FFB020] selection:text-[#0B0E1F]">
+    <div
+      onClickCapture={handleButtonClickCapture}
+      className="relative min-h-dvh bg-[#0E1230] text-white font-body overflow-x-hidden selection:bg-[#FFB020] selection:text-[#0B0E1F]"
+    >
       <PartyBackground />
       <ConfettiBurst triggerKey={burstCounter} />
 
       <button
         type="button"
+        data-sound-ignore
         onClick={handleToggleSound}
         aria-label={
           soundEnabled

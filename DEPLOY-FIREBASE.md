@@ -1,7 +1,27 @@
 # 🚀 Hospedar o Entre Nós no Firebase
 
-Duas rotas possíveis. A **Opção A** é a mais simples e sobe frontend + servidor WebSocket juntos.
-A **Opção B** publica o frontend estático no Firebase Hosting e o servidor Socket.IO no Cloud Run.
+A publicação completa pelo Firebase App Hosting ou Cloud Run exige Blaze. Para evitar faturamento obrigatório e ainda ter partidas online, combine Firebase Hosting para o frontend com Render Free para o servidor Socket.IO.
+
+## Alternativa sem custos obrigatórios — Firebase Hosting + Render Free
+
+O Firebase Hosting publica o site estático; o Render Free recebe as conexões Socket.IO. O blueprint [render.yaml](./render.yaml) configura o servidor na região Virginia.
+
+1. Crie ou acesse uma conta no [Render](https://dashboard.render.com/) e conecte o GitHub.
+2. No Render, escolha **New → Blueprint**, selecione `Kristhynev/EntreNosGame` e aplique o `render.yaml`. Confirme o plano **Free**.
+3. Aguarde o serviço `entrenosgame-server` ficar **Live** e copie a URL `https://...onrender.com`.
+4. No PowerShell, na pasta raiz do projeto, publique o frontend no Firebase Hosting:
+   ```powershell
+   $env:VITE_SOCKET_URL = "https://SUA-URL.onrender.com"
+   firebase.cmd deploy --only hosting --project entrenosgame
+   Remove-Item Env:VITE_SOCKET_URL
+   ```
+5. Acesse <https://entrenosgame.web.app> e teste uma partida com pelo menos 3 jogadores.
+
+O plano Free não exige escolher um plano pago. O serviço dorme após 15 minutos sem tráfego e pode levar cerca de um minuto para voltar. Como as salas ficam na memória do servidor, elas são perdidas quando ele dorme ou reinicia. É adequado para testes e uso casual, não para disponibilidade contínua. Sem método de pagamento cadastrado, exceder as cotas gratuitas pode suspender o serviço em vez de gerar cobrança.
+
+## Opções nativas do Firebase
+
+As opções abaixo exigem o plano Blaze e podem gerar cobranças.
 
 ---
 
@@ -14,7 +34,7 @@ A **Opção B** publica o frontend estático no Firebase Hosting e o servidor So
 
 ---
 
-## Opção A — Firebase App Hosting (recomendada: tempo real completo)
+## Opção A — Firebase App Hosting (tempo real completo)
 
 Sobe o Next.js + Socket.IO no mesmo endereço, sem CORS e sem configurar URL extra.
 

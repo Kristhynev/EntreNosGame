@@ -120,7 +120,7 @@ Uma partida exige no mínimo **3 jogadores** e suporta até **8 jogadores**:
 
 O projeto já está 100% configurado com `firebase.json`, `.firebaserc`, `apphosting.yaml`, `server/Dockerfile` e o script automatizado `deploy-firebase.sh`.
 
-### Opção 1: Firebase App Hosting (Mais Simples — Fullstack + WebSockets juntos)
+### Opção 1: Firebase App Hosting (Fullstack + WebSockets juntos — requer Blaze)
 1. Suba este projeto para um repositório no seu GitHub.
 2. No [Console do Firebase](https://console.firebase.google.com/), crie ou abra seu projeto e acesse **Build → App Hosting → Começar**.
 3. Conecte seu repositório GitHub (diretório raiz `/`).
@@ -128,6 +128,8 @@ O projeto já está 100% configurado com `firebase.json`, `.firebaserc`, `apphos
 
 ### Opção 2: Firebase Hosting (`*.web.app`) + Servidor Socket.IO (`deploy-firebase.sh`)
 Como o CDN estático do Firebase Hosting (`*.web.app`) serve arquivos estáticos (`client/dist`), o servidor WebSocket (`server/`) roda no **Google Cloud Run** (ou Render/Railway/Fly.io):
+
+> Para evitar custos obrigatórios, o projeto inclui um blueprint [Render Free](./render.yaml). Veja os passos e limitações em [DEPLOY-FIREBASE.md](./DEPLOY-FIREBASE.md). O serviço gratuito pode dormir e perder as salas em memória.
 
 1. No seu terminal local, autentique sua conta Google no Firebase:
    ```bash

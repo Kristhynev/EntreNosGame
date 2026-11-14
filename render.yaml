@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: entrenosgame-server
+    runtime: node
+    plan: free
+    region: virginia
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit

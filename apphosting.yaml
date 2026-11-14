@@ -1,0 +1,11 @@
+# Configuração oficial para Firebase App Hosting (Fullstack + WebSockets)
+runConfig:
+  minInstances: 0
+  maxInstances: 1
+  concurrency: 100
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: NODE_ENV
+    value: production

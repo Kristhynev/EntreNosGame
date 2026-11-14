@@ -8,6 +8,7 @@ O Firebase Hosting publica o site estático; o Render Free recebe as conexões S
 
 1. Crie ou acesse uma conta no [Render](https://dashboard.render.com/) e conecte o GitHub.
 2. No Render, escolha **New → Blueprint**, selecione `Kristhynev/EntreNosGame` e aplique o `render.yaml`. Confirme o plano **Free**.
+   Se usar a URL pública do repositório, novos commits não iniciam deploy automaticamente; conecte o repositório à integração do GitHub no Render ou use **Manual Deploy → Deploy latest commit**.
 3. Aguarde o serviço `entrenosgame-server` ficar **Live** e copie a URL `https://...onrender.com`.
 4. No PowerShell, na pasta raiz do projeto, publique o frontend no Firebase Hosting:
    ```powershell

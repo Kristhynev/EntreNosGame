@@ -19,6 +19,8 @@ Mesa de investigação em estilo **noir neo-brutalista**, inspirada em detetives
 
 Tipografia: **Bebas Neue** (títulos de pôster) + **Inter** (corpo). O fundo tem holofotes animados, grão de filme, cartas flutuantes e uma lupa — tudo desativado automaticamente em `prefers-reduced-motion`.
 
+O áudio procedural cria uma ambiência noir discreta e sinais para abertura de caso, entrada de jogadores, pistas, debate, votação e resultado. O controle **Som** começa desligado e ativa trilha e efeitos após interação do jogador; os sons são sintetizados no navegador, sem arquivos externos.
+
 ---
 
 ## 📁 Estrutura de Pastas

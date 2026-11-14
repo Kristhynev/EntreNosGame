@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
-import { AlertTriangle, Info, X } from "lucide-react";
+import { AlertTriangle, Info, Volume2, VolumeX, X } from "lucide-react";
 import type {
   AvatarConfig,
   GameOverPayload,
@@ -19,6 +19,7 @@ import {
   setSavedRoomCode,
   switchToIsolatedTabIdentity,
 } from "./lib/identity";
+import { GameAudio, type SoundCue } from "./lib/gameAudio";
 import { PartyBackground, ConfettiBurst } from "./components/PartyDecorations";
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { Lobby } from "./components/Lobby";
@@ -47,6 +48,7 @@ export function ImpostorPartyApp({
 
   const [activeServerUrl, setActiveServerUrl] = useState(standaloneUrl);
   const [connected, setConnected] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [room, setRoom] = useState<RoomState | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -61,13 +63,17 @@ export function ImpostorPartyApp({
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const socketRef = useRef<Socket | null>(null);
+  const audioRef = useRef<GameAudio | null>(null);
   const roomRef = useRef<RoomState | null>(null);
   const identityRef = useRef<PlayerIdentity | null>(null);
   const isIsolatedTabRef = useRef<boolean>(false);
+  const myRoleRef = useRef(myRole);
 
+  if (!audioRef.current) audioRef.current = new GameAudio();
   roomRef.current = room;
   identityRef.current = identity;
   isIsolatedTabRef.current = isIsolatedTab;
+  myRoleRef.current = myRole;
 
   const pushToast = useCallback((type: "error" | "info", text: string) => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
@@ -76,6 +82,32 @@ export function ImpostorPartyApp({
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4500);
   }, []);
+
+  const playSound = useCallback((cue: SoundCue) => {
+    audioRef.current?.play(cue);
+  }, []);
+
+  const handleToggleSound = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (soundEnabled) {
+      audio.disable();
+      setSoundEnabled(false);
+      return;
+    }
+
+    void audio
+      .enable()
+      .then(() => {
+        setSoundEnabled(true);
+        audio.play("toggle");
+      })
+      .catch((error: unknown) => {
+        console.error("Não foi possível ativar o áudio do jogo.", error);
+        pushToast("info", "Não foi possível ativar o som neste navegador.");
+      });
+  }, [pushToast, soundEnabled]);
 
   const triggerConfetti = useCallback(() => {
     setBurstCounter((c) => c + 1);
@@ -194,6 +226,7 @@ export function ImpostorPartyApp({
         setRoom(payload.room);
         setSavedRoomCode(payload.room.roomCode, isIsolatedTabRef.current);
         triggerConfetti();
+        playSound("case-open");
       });
 
       socket.on(
@@ -205,6 +238,7 @@ export function ImpostorPartyApp({
         }) => {
           setRoom(payload.room);
           setSavedRoomCode(payload.room.roomCode, isIsolatedTabRef.current);
+          playSound(payload.reconnected ? "reconnect" : "case-open");
           if (payload.warning) {
             pushToast("info", payload.warning);
           } else if (payload.reconnected) {
@@ -218,6 +252,7 @@ export function ImpostorPartyApp({
         (payload: { room: RoomState; warning?: string }) => {
           setRoom(payload.room);
           triggerConfetti();
+          playSound("player-arrives");
           if (payload.warning) {
             pushToast("info", payload.warning);
           }
@@ -228,6 +263,7 @@ export function ImpostorPartyApp({
         "player_left",
         (payload: { nickname: string; room: RoomState }) => {
           setRoom(payload.room);
+          playSound("player-leaves");
           pushToast("info", `${payload.nickname} saiu do caso.`);
         }
       );
@@ -268,6 +304,7 @@ export function ImpostorPartyApp({
           setVoteResult(null);
           setGameOverResult(null);
           setRoom(payload.room);
+          playSound("investigation-start");
         }
       );
 
@@ -278,11 +315,13 @@ export function ImpostorPartyApp({
 
       socket.on("hint_received", (payload: { room: RoomState }) => {
         setRoom(payload.room);
+        playSound("clue");
       });
 
       socket.on("debate_started", (payload: { room: RoomState }) => {
         setVoteResult(null);
         setRoom(payload.room);
+        playSound("debate");
       });
 
       socket.on("debate_updated", (payload: { room: RoomState }) => {
@@ -296,6 +335,7 @@ export function ImpostorPartyApp({
       socket.on("voting_started", (payload: { room: RoomState }) => {
         setVoteResult(null);
         setRoom(payload.room);
+        playSound("voting");
       });
 
       socket.on(
@@ -303,12 +343,14 @@ export function ImpostorPartyApp({
         (payload: VoteResultPayload & { room: RoomState }) => {
           setVoteResult(payload);
           setRoom(payload.room);
+          playSound("vote-result");
         }
       );
 
       socket.on("guess_phase", (payload: { room: RoomState }) => {
         setVoteResult(null);
         setRoom(payload.room);
+        playSound("guess");
       });
 
       socket.on(
@@ -318,10 +360,14 @@ export function ImpostorPartyApp({
           setGameOverResult(payload);
           setRoom(payload.room);
           triggerConfetti();
+          playSound(
+            payload.winner === myRoleRef.current ? "victory" : "defeat"
+          );
         }
       );
 
       socket.on("error", (payload: { message: string }) => {
+        playSound("error");
         const msg = payload?.message || "Ocorreu um erro inesperado.";
         pushToast("error", msg);
         if (
@@ -349,6 +395,7 @@ export function ImpostorPartyApp({
     activeServerUrl,
     pushToast,
     triggerConfetti,
+    playSound,
   ]);
 
   const handleChangeServerUrl = (newUrl: string) => {
@@ -481,6 +528,34 @@ export function ImpostorPartyApp({
     <div className="relative min-h-dvh bg-[#0E1230] text-white font-body overflow-x-hidden selection:bg-[#FFB020] selection:text-[#0B0E1F]">
       <PartyBackground />
       <ConfettiBurst triggerKey={burstCounter} />
+
+      <button
+        type="button"
+        onClick={handleToggleSound}
+        aria-label={
+          soundEnabled
+            ? "Desativar trilha e efeitos sonoros"
+            : "Ativar trilha e efeitos sonoros"
+        }
+        aria-pressed={soundEnabled}
+        title={
+          soundEnabled
+            ? "Desativar trilha e efeitos sonoros"
+            : "Ativar trilha e efeitos sonoros"
+        }
+        className={`fixed bottom-4 right-4 z-[60] flex min-h-12 items-center gap-2 rounded-full border-[3px] border-[#0B0E1F] px-3 text-[#0B0E1F] shadow-[0_4px_0_#05070F] transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FFB020] active:translate-y-1 active:shadow-none ${
+          soundEnabled ? "bg-[#FFB020]" : "bg-[#F6EFE0]"
+        }`}
+      >
+        {soundEnabled ? (
+          <Volume2 className="h-5 w-5" aria-hidden="true" />
+        ) : (
+          <VolumeX className="h-5 w-5" aria-hidden="true" />
+        )}
+        <span className="sr-only sm:not-sr-only text-[11px] font-black uppercase tracking-wider">
+          Som {soundEnabled ? "ligado" : "desligado"}
+        </span>
+      </button>
 
       {/* Toasts Acessíveis */}
       <div
